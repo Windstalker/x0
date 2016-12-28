@@ -17,7 +17,6 @@ function getCoords(y, x) {
     }
 }
 
-
 function check(y, x) {
     for (var i = 0; i < game.sizeLength; i++) {
         if (getCoords(y, i) == 'x') {

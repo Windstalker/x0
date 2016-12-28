@@ -2,18 +2,17 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>game</title>
-    <link rel="stylesheet" href="style.css" media="screen" title="no title">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css" media="screen">
+    <script src="game.js" type="text/javascript"></script>
   </head>
   <body>
     <h1>Play</h1>
     <form name='beginGame' id="gameform" class="" action="" method="post">
-        <h4>Количество ячеек в поле игры</h4>
-        <input type="text" name="size" value="">
-        <!-- TODO: Переверстать без <br>, их почти никто нигде не использует -->
-        <h4>Количество ячеек в строку(колонку) для победы</h4>
-        <input type="text" name="winCount" value="">
-        <!-- TODO: Отставить инлайновые обработчики! Только addEventListener! -->
+        <h4>Размер игрового поля</h4>
+        <input type="text" name="size" value="3">
+        <h4>Количество ячеек для победы</h4>
+        <input type="text" name="winCount" value="3">
         <input type="button" name="name" value="Начать" id="begin">
     </form>
     <div class="field">
@@ -23,10 +22,5 @@
         <h1>The winner is </h1>
         <button type="button" name="button" id="reload">new game</button>
     </div>
-    <!--
-    TODO: Нет в целом ничего плохого в том, что у тебя скрипт в конце страницы,
-    но давай учиться слушать события документа 'DOMContentLoaded' и 'load'
-    -->
-    <script src="scr.js" type="text/javascript"></script>
   </body>
 </html>

@@ -1,53 +1,45 @@
-/* TODO: Соблюдай однообразие стиля кода! Отступы и т.д */
-
 * {
-  margin: 0px;
-  padding: 0px;
-
-}
-
-tr, td {
-  border: 1px solid orange;
-  width: 100px;
-  height: 100px;
+  margin: 0;
+  padding: 0;
 }
 
 .field {
   background: orange;
-  border: 0px;
+  border: 0;
   margin-left: 50px;
 }
 
 .item {
-  background: gray;
+  display: inline-block;
+  float: left;
   width: 100px;
+  height: 100px;
   text-align: center;
   vertical-align: bottom;
   color: white;
-  line-height: 100px;
-  height: 100px;
-  display: inline-block;
-  float: left;
+  background: gray;
   border: 1px solid darkblue;
+  line-height: 100px;
+  box-sizing: border-box;
 }
 
 .finished {
-  background: deeppink;
   position: absolute;
   display: none;
-  color: white;
-  font-size: 2em;
   top: 100px;
   left: 400px;
+  background: deeppink;
+  color: white;
+  font-size: 2em;
 }
 
 button {
-  width: 200px;
   position: relative;
-  left: 30%;
+  width: 200px;
   height: 100px;
+  left: 30%;
 }
 
 h4, input {
-    display: block;
+  display: block;
 }
