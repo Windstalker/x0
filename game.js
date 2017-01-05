@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
   'use strict';
 
-  var MARKS = {};
-  var CROSS = 1;
-  var CIRCLE = 0;
-  var EMPTY = -1;
+  const CROSS = 1;
+  const CIRCLE = 0;
+  const EMPTY = -1;
+  const MARKS = {
+    [CROSS]: '\u2622',
+    [CIRCLE]: '\u2623',
+    [EMPTY]: ''
+  };
 
-  MARKS[CROSS] = '\u2622';
-  MARKS[CIRCLE] = '\u2623';
-  MARKS[EMPTY] = '';
-
-  var game = {
+  const game = {
     // pos: null,
     field: [],
     cellsDOM: [],
@@ -26,12 +26,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  var body = document.body;
-  var fieldEl = document.querySelector('.field');
-  var gameFormEl = document.getElementById('gameoptions');
-  var finishBox = document.querySelector('.finished');
-  var reloadBtn = document.getElementById('reload');
-  var winnerPlaceholder = finishBox.querySelector('.winner');
+  const body = document.body;
+  const fieldEl = document.querySelector('.field');
+  const gameFormEl = document.getElementById('gameoptions');
+  const finishBox = document.querySelector('.finished');
+  const reloadBtn = document.getElementById('reload');
+  const winnerPlaceholder = finishBox.querySelector('.winner');
 
   init();
 
@@ -44,9 +44,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function startGame(e) {
     e.preventDefault();
-    var formElements = this.elements;
-    var size = +formElements.size.value;
-    var marksToWin = +formElements.winCount.value;
+    const formElements = this.elements;
+    const size = +formElements.size.value;
+    const marksToWin = +formElements.winCount.value;
 
     if (size < marksToWin) {
       return alert('Impossible to play with selected options. Please, change them');
@@ -66,19 +66,19 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function toggle(screenname) {
-    var screens = {
+    const screens = {
       'start': gameFormEl,
       'game': fieldEl
     };
 
-    Object.keys(screens).forEach(function(name) {
+    Object.keys(screens).forEach(name => {
       screens[name].style.display = name === screenname ? 'block' : 'none'
     });
   }
 
   function handleFieldClick(event) {
-    var target = event.target;
-    var cellIndex = game.cellsDOM.indexOf(target);
+    const target = event.target;
+    const cellIndex = game.cellsDOM.indexOf(target);
 
     if (game.winner || cellIndex < 0) {
       return ;
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
       return ;
     }
 
-    var coords = getXY(cellIndex);
+    const coords = getXY(cellIndex);
 
     placeMark(game.playerTurn, cellIndex);
     game.turnsCount += 1;
@@ -107,8 +107,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // создаем игровое поле и одномерный array игры
   function createGameField() {
-    var fieldLength = game.fieldSize * game.fieldSize;
-    var fieldWidth = game.fieldSize * game.style.cellSize;
+    const fieldWidth = game.fieldSize * game.style.cellSize;
+    let fieldLength = game.fieldSize * game.fieldSize;
 
     fieldEl.removeEventListener('click', handleFieldClick, false);
     fieldEl.innerHTML = '';
@@ -117,7 +117,8 @@ document.addEventListener("DOMContentLoaded", function() {
     game.cellsDOM = [];
 
     while (fieldLength--) {
-      var cell = createCell();
+      const cell = createCell();
+
       game.field.push(EMPTY);
       game.cellsDOM.push(cell);
       fieldEl.appendChild(cell);
@@ -130,8 +131,8 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function createCell(content) {
-    var cell = document.createElement('div');
-    var sizePx = game.style.cellSize + 'px';
+    const sizePx = game.style.cellSize + 'px';
+    let cell = document.createElement('div');
 
     cell.classList.add('item');
     cell.style.width = sizePx;
@@ -191,49 +192,52 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function getXY(i) {
-    var x = i % game.fieldSize;
-    var y = Math.floor(i / game.fieldSize);
+    const x = i % game.fieldSize;
+    const y = Math.floor(i / game.fieldSize);
 
     return [x, y];
   }
 
   // проверка победителя
   function checkVictory(x, y, mark) {
-    var minTurnsToWin = game.marksToWin * 2 - 1; // valid for two players turn-based game
+    const minTurnsToWin = game.marksToWin * 2 - 1; // valid for two players turn-based game
 
     if (game.turnsCount < minTurnsToWin) {
       // there is no winner if turns count is not enough
       return false;
     }
 
-    var minIndex = (i) => Math.max(i - game.marksToWin, 0);
-    var maxIndex = (i) => Math.min(i + game.marksToWin, game.fieldSize - 1);
-    var maxX = maxIndex(x);
-    var maxY = maxIndex(y);
-    var minX = minIndex(x);
-    var minY = minIndex(y);
+    const minIndex = i => Math.max(i - game.marksToWin, 0);
+    const maxIndex = i => Math.min(i + game.marksToWin, game.fieldSize - 1);
+    const maxX = maxIndex(x);
+    const maxY = maxIndex(y);
+    const minX = minIndex(x);
+    const minY = minIndex(y);
 
-    var mainDiagonal = [minX, minY, maxX, maxY];
-    var secondaryDiagonal = [maxX, minY, minX, maxY];
-    var horizontal = [minX, y, maxX, y];
-    var vertical = [x, minY, x, maxY];
+    const mainDiagonal = [minX, minY, maxX, maxY];
+    const secondaryDiagonal = [maxX, minY, minX, maxY];
+    const horizontal = [minX, y, maxX, y];
+    const vertical = [x, minY, x, maxY];
 
-    var result = [horizontal, vertical, mainDiagonal, secondaryDiagonal].some(function(coords) {
-      return checkLine.apply(null, coords.concat(mark));
-    });
+    const result = [
+      horizontal,
+      vertical,
+      mainDiagonal,
+      secondaryDiagonal
+    ].some(coords => checkLine.apply(null, coords.concat(mark)));
 
     return result;
   }
 
   function checkLine(x0, y0, x1, y1, mark) {
-    var incX = x0 === x1 ? 0 : (x0 < x1 ? 1 : -1);
-    var incY = y0 === y1 ? 0 : (y0 < y1 ? 1 : -1);
-    var i = 0;
-    var n = Math.abs(incX !== 0 ? (x1 - x0) : (y1 - y0));
-    var counter = 0;
+    const incX = x0 === x1 ? 0 : (x0 < x1 ? 1 : -1);
+    const incY = y0 === y1 ? 0 : (y0 < y1 ? 1 : -1);
+    const n = Math.abs(incX !== 0 ? (x1 - x0) : (y1 - y0));
+    let i = 0;
+    let counter = 0;
 
     for (i; i <= n; i++) {
-      var cellIndex = getIndex(x0 + (i * incX), y0 + (i * incY));
+      const cellIndex = getIndex(x0 + (i * incX), y0 + (i * incY));
 
       if (game.field[cellIndex] === mark) {
         counter += 1;
