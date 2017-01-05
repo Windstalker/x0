@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", function() {
   var CIRCLE = 0;
   var EMPTY = -1;
 
-  MARKS[CROSS] = 'X';
-  MARKS[CIRCLE] = 'O';
+  MARKS[CROSS] = '\u2622';
+  MARKS[CIRCLE] = '\u2623';
   MARKS[EMPTY] = '';
 
   var game = {
@@ -15,8 +15,10 @@ document.addEventListener("DOMContentLoaded", function() {
     field: [],
     cellsDOM: [],
     fieldSize: 3,
-    marksVictoryCount: 3,
+    marksToWin: 3,
     playerTurn: undefined,
+    winner: undefined,
+    turnsCount: 0,
     winner: undefined,
     style: {
       cellSize: 100,
@@ -26,21 +28,33 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var body = document.body;
   var fieldEl = document.querySelector('.field');
-  var gameFormEl = document.getElementById('gameform');
+  var gameFormEl = document.getElementById('gameoptions');
   var finishBox = document.querySelector('.finished');
-  var startBtn = document.getElementById('begin');
   var reloadBtn = document.getElementById('reload');
+  var winnerPlaceholder = finishBox.querySelector('.winner');
 
   init();
 
   function init() {
-    startBtn.addEventListener('click', startGame);
+    gameFormEl.addEventListener('submit', startGame);
     reloadBtn.addEventListener('click', restartGame);
 
     toggle('start');
   }
 
-  function startGame() {
+  function startGame(e) {
+    e.preventDefault();
+    var formElements = this.elements;
+    var size = +formElements.size.value;
+    var marksToWin = +formElements.winCount.value;
+
+    if (size < marksToWin) {
+      return alert('Impossible to play with selected options. Please, change them');
+    }
+
+    game.fieldSize = !isNaN(size) ? size : game.fieldSize;
+    game.marksToWin = !isNaN(marksToWin) ? marksToWin : game.marksToWin;
+
     createGameField();
     decideFirstTurn();
 
@@ -66,20 +80,23 @@ document.addEventListener("DOMContentLoaded", function() {
     var target = event.target;
     var cellIndex = game.cellsDOM.indexOf(target);
 
-    if (cellIndex < 0) {
+    if (game.winner || cellIndex < 0) {
       return ;
     }
-
-    console.log(cellIndex);
-    var coords = getXY(cellIndex);
-    console.log(coords);
 
     if (game.field[cellIndex] !== EMPTY) {
       console.log('Forbidden: cell not empty');
       return ;
     }
 
+    var coords = getXY(cellIndex);
+
     placeMark(game.playerTurn, cellIndex);
+    game.turnsCount += 1;
+
+    if (game.turnsCount >= game.field.length) {
+      return announceDraw();
+    }
 
     if (checkVictory(coords[0], coords[1], game.playerTurn)) {
       return announceVictory(game.playerTurn);
@@ -119,6 +136,8 @@ document.addEventListener("DOMContentLoaded", function() {
     cell.classList.add('item');
     cell.style.width = sizePx;
     cell.style.height = sizePx;
+    cell.style.lineHeight = sizePx;
+    cell.style.fontSize = (game.style.cellSize / 2) + 'px';
 
     cell = fillCell(cell, content || EMPTY);
 
@@ -149,7 +168,18 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function announceVictory(mark) {
-    alert(game.style.marks[mark] + ' wins!');
+    toggleFinishBox(game.style.marks[mark] + ' wins!', true);
+    game.winner = mark;
+  }
+
+  function announceDraw() {
+    toggleFinishBox('It\'s a draw!', true);
+    game.winner = EMPTY;
+  }
+
+  function toggleFinishBox(msg, shown) {
+    winnerPlaceholder.innerHTML = msg;
+    finishBox.style.display = shown ? 'block' : 'none';
   }
 
   function restartGame() {
@@ -168,8 +198,51 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // проверка победителя
-  function checkVictory(y, x, mark) {
-    // TODO: implement checkVictory
+  function checkVictory(x, y, mark) {
+    var minTurnsToWin = game.marksToWin * 2 - 1; // valid for two players turn-based game
+
+    if (game.turnsCount < minTurnsToWin) {
+      // there is no winner if turns count is not enough
+      return false;
+    }
+
+    var minIndex = (i) => Math.max(i - game.marksToWin, 0);
+    var maxIndex = (i) => Math.min(i + game.marksToWin, game.fieldSize - 1);
+    var maxX = maxIndex(x);
+    var maxY = maxIndex(y);
+    var minX = minIndex(x);
+    var minY = minIndex(y);
+
+    var mainDiagonal = [minX, minY, maxX, maxY];
+    var secondaryDiagonal = [maxX, minY, minX, maxY];
+    var horizontal = [minX, y, maxX, y];
+    var vertical = [x, minY, x, maxY];
+
+    var result = [horizontal, vertical, mainDiagonal, secondaryDiagonal].some(function(coords) {
+      return checkLine.apply(null, coords.concat(mark));
+    });
+
+    return result;
+  }
+
+  function checkLine(x0, y0, x1, y1, mark) {
+    var incX = x0 === x1 ? 0 : (x0 < x1 ? 1 : -1);
+    var incY = y0 === y1 ? 0 : (y0 < y1 ? 1 : -1);
+    var i = 0;
+    var n = Math.abs(incX !== 0 ? (x1 - x0) : (y1 - y0));
+    var counter = 0;
+
+    for (i; i <= n; i++) {
+      var cellIndex = getIndex(x0 + (i * incX), y0 + (i * incY));
+
+      if (game.field[cellIndex] === mark) {
+        counter += 1;
+        if (counter >= game.marksToWin) return true;
+      } else {
+        counter = 0;
+      }
+    }
+
     return false;
   }
 });

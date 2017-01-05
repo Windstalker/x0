@@ -1,12 +1,18 @@
-* {
-  margin: 0;
-  padding: 0;
+body {
+  font-family: Sans, sans-serif;
+}
+
+.row {
+  display: block;
+  margin: 10px 0 20px;
 }
 
 .field {
-  background: orange;
-  border: 0;
+  overflow: hidden;
   margin-left: 50px;
+  font-family: monospace;
+  border: 0;
+  background: #f4df42;
 }
 
 .item {
@@ -16,30 +22,34 @@
   height: 100px;
   text-align: center;
   vertical-align: bottom;
-  color: white;
-  background: gray;
-  border: 1px solid darkblue;
+  color: #000;
+  border: 1px dashed #222;
   line-height: 100px;
   box-sizing: border-box;
+  font-weight: bold;
+  font-size: 50px;
 }
 
 .finished {
-  position: absolute;
+  position: fixed;
   display: none;
-  top: 100px;
-  left: 400px;
-  background: deeppink;
+  top: 0;
+  left: 0;
+  background: rgba(145, 145, 100, 0.5);
   color: white;
   font-size: 2em;
+  width: 100vw;
+  height: 100vh;
 }
 
-button {
-  position: relative;
+.finished .winner-wrapper {
+  width: 400px;
+  text-align: center;
+  margin: 50px auto;
+}
+
+#gameoptions button[type=submit] {
+  display: block;
   width: 200px;
   height: 100px;
-  left: 30%;
-}
-
-h4, input {
-  display: block;
 }
